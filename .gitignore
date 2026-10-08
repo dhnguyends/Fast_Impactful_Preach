@@ -1,0 +1,30 @@
+# Python / tools
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Secrets — API keys, app password, OAuth tokens (never published)
+.env
+.env.*
+!.env.example
+
+# User data: projects, sermons, rendered shorts, caches
+data/
+shorts/
+
+# Large / personal media
+*.mp4
+*.mkv
+*.mov
+Screenshot_*.jpg
+
+# Old version and local tool settings
+archive/
+.claude/
+
+# Windows build output (the zip is attached to the GitHub release instead)
+win11/build/
+win11/installer/
+win11/build.log
+win11/licenses/FFMPEG-BUILD.txt

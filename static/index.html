@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FastImpact Preach</title>
+<link rel="icon" href="logo.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="app.css?v=24">
+</head>
+<body>
+<header class="topbar">
+  <a class="crumb" href="#/">
+    <img src="logo.svg" alt="" class="logo">
+    <span class="brand">FastImpact Preach</span>
+    <span class="sep">/</span>
+    <span id="crumb-page">Upload</span>
+  </a>
+  <div class="social-center">
+    <button id="social-btn" class="social-btn" type="button" title="Choose the social network to publish to">
+      <span class="dot"></span><span id="social-label">Publish to…</span>
+    </button>
+    <label class="acct" id="acct-wrap" hidden title="Channel / account that receives the uploads">
+      <span class="acct-ico" aria-hidden="true">👤</span>
+      <select id="acct-select" aria-label="Publishing account"></select>
+    </label>
+  </div>
+  <nav class="top-actions">
+    <button id="key-btn" class="keybtn" type="button" title="Claude API key">
+      <svg viewBox="0 0 24 24" class="ico"><circle cx="8" cy="15" r="4"/><path d="m10.8 12.2 8.7-8.7M17 6l3 3M14.5 8.5l2 2"/></svg>
+      <span id="key-label">API key</span>
+    </button>
+    <a href="#/projects" class="top-link">My projects</a>
+    <button id="new-project" class="btn-primary sm new-proj" type="button" title="Save this project and start a new video upload">+ New<span class="np-long">&nbsp;Project</span></button>
+    <button id="logout" class="top-link linkbtn-plain" type="button" hidden>Sign out</button>
+  </nav>
+</header>
+
+<main id="view"></main>
+
+<template id="tpl-home">
+  <section class="home">
+    <form class="urlbar" id="url-form" autocomplete="off">
+      <svg class="ico" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.07 0l3-3a5 5 0 0 0-7.07-7.07l-1.5 1.5M14 11a5 5 0 0 0-7.07 0l-3 3a5 5 0 0 0 7.07 7.07l1.5-1.5"/></svg>
+      <input id="url-input" type="url" placeholder="Drop a YouTube / video link">
+      <button type="submit" class="btn-soft" id="url-go">Continue</button>
+    </form>
+
+    <label class="dropzone" id="dropzone">
+      <input type="file" id="file-input" accept="video/*,audio/*" hidden>
+      <div class="folder">
+        <svg viewBox="0 0 80 64"><defs><linearGradient id="fg" x1="0" x2="1"><stop offset="0" stop-color="#b9a3f5" stop-opacity=".25"/><stop offset=".35" stop-color="#9b7bea"/><stop offset="1" stop-color="#8a63e3"/></linearGradient></defs>
+          <path d="M14 6h20l6 7h30a4 4 0 0 1 4 4v39a4 4 0 0 1-4 4H14z" fill="#7c4fe0"/>
+          <path d="M4 22a4 4 0 0 1 4-4h66a4 4 0 0 1 4 4l-4 34a4 4 0 0 1-4 4H12a4 4 0 0 1-4-4z" fill="url(#fg)"/></svg>
+      </div>
+      <p class="dz-main"><span class="link">Click to browse</span> or drag &amp; drop</p>
+      <p class="dz-sub">Supported file type: video, audio <span class="info" title="mp4, mov, mkv, webm, mp3, wav, m4a…">⋯</span></p>
+    </label>
+
+    <div class="alt-row">
+      <button class="btn-outline" id="local-btn" type="button">
+        <svg viewBox="0 0 24 24" class="ico c-blue"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>
+        Use a file on this PC
+      </button>
+      <a class="btn-outline" href="#/projects">
+        <svg viewBox="0 0 24 24" class="ico c-green"><rect x="3" y="5" width="13" height="14" rx="2"/><path d="m16 10 5-3v10l-5-3"/></svg>
+        My projects
+      </a>
+    </div>
+
+    <details class="settings" id="settings">
+      <summary>
+        <span>Clip settings</span>
+        <span class="muted" id="settings-sum"></span>
+      </summary>
+      <div class="grid">
+        <label>Number of clips (1–10)<input type="number" name="num_clips" min="1" max="10"></label>
+        <label>Min length (s)<input type="number" name="min_duration" min="10" max="180"></label>
+        <label>Max length (s)<input type="number" name="max_duration" min="15" max="180"></label>
+        <label title="A montage joins 2 to 4 passages of the sermon into one short">Montage max length (s)<input type="number" name="montage_max" min="30" max="180"></label>
+        <label>Language
+          <select name="language"><option value="auto">Auto-detect</option><option value="fr">Français</option><option value="en">English</option><option value="es">Español</option><option value="pt">Português</option><option value="de">Deutsch</option></select>
+        </label>
+        <label>Brand name (end card)<input type="text" name="brand"></label>
+        <label>Tagline (end card)<input type="text" name="tagline"></label>
+        <label>Watermark (optional)<input type="text" name="watermark" placeholder="e.g. Church name"></label>
+        <label class="span2">Extra guidance for Claude (optional)<input type="text" name="guidance" placeholder="e.g. focus on the call to repentance"></label>
+      </div>
+      <div class="single" id="single-box" hidden>
+        <p class="single-note">⚡ <b>1 clip:</b> a video under 3 minutes is already a short — it is used whole.
+          For a longer video:</p>
+        <label class="radio"><input type="radio" name="single_mode" value="ask"> Ask me after the video is processed</label>
+        <label class="radio"><input type="radio" name="single_mode" value="auto"> Let Claude find the best moment</label>
+        <label class="radio"><input type="radio" name="single_mode" value="manual"> Use this part:
+          <input type="text" name="single_start" placeholder="start 12:30" class="tm">
+          <input type="text" name="single_end" placeholder="end 13:45" class="tm"></label>
+      </div>
+      <div class="grid look">
+        <label>Hook title (top of the short)
+          <select name="title_mode"><option value="hook">First 15 seconds</option><option value="full">Whole short</option><option value="off">Off</option></select>
+        </label>
+        <label>Caption style
+          <select name="caption_style"><option value="eeig">EEIG — sentence case, blue box</option><option value="impact">Impact — UPPERCASE, bouncy</option></select>
+        </label>
+        <label id="hl-wrap">Impact highlight
+          <select name="highlight"><option value="active">Highlight the spoken word</option><option value="keyword">One keyword per line</option></select>
+        </label>
+        <label>Framing
+          <select name="crop"><option value="track">Follow the speaker</option><option value="center">Centre crop</option></select>
+        </label>
+        <label>Slides on screen
+          <select name="slides"><option value="fit">Show the whole slide</option><option value="crop">Crop like the speaker</option></select>
+        </label>
+      </div>
+      <div class="logo-row">
+        <img id="logo-prev" alt="End card logo" hidden>
+        <div class="logo-txt"><b>End card logo</b><span class="muted" id="logo-info">Shown on the white tile of the end card.</span></div>
+        <label class="btn-outline sm">Change…<input type="file" id="logo-file" accept="image/png,image/jpeg,image/webp" hidden></label>
+        <button type="button" class="linkbtn-plain muted" id="logo-reset">Reset</button>
+      </div>
+      <div class="lib-box">
+        <div class="lib-head">
+          <div class="logo-txt"><b>B-roll library</b><span class="muted" id="lib-info">Your church's own clips, used first when their keywords match.</span></div>
+          <label class="btn-outline sm">Add clip…<input type="file" id="lib-file" accept="video/*" hidden></label>
+        </div>
+        <div class="lib-list" id="lib-list"></div>
+      </div>
+      <div class="toggles">
+        <label class="tg"><input type="checkbox" name="refine"><span></span>Double-check start &amp; end of each clip</label>
+        <label class="tg" title="Claude may join 2 to 4 passages of the sermon into one short when the idea is developed in several places"><input type="checkbox" name="montage"><span></span>Montage (several passages per short)</label>
+        <label class="tg"><input type="checkbox" name="emojis"><span></span>Emojis</label>
+        <label class="tg"><input type="checkbox" name="punch_zoom"><span></span>Bouncy punch-in zooms</label>
+        <label class="tg" title="Short cutaway shots over the preacher: the church's library first, then Pixabay"><input type="checkbox" name="broll"><span></span>B-roll cutaways</label>
+        <label class="tg"><input type="checkbox" name="outro"><span></span>End card</label>
+      </div>
+    </details>
+  </section>
+</template>
+
+<template id="tpl-process">
+  <section class="process">
+    <div class="filecard">
+      <img class="fc-thumb" alt="">
+      <div class="fc-body">
+        <div class="fc-top">
+          <span class="fc-title"></span>
+          <span class="chip fc-res" hidden></span>
+          <span class="chip fc-dur" hidden></span>
+        </div>
+        <div class="bar"><i></i></div>
+        <div class="fc-status muted"></div>
+      </div>
+      <button class="x" title="Cancel" id="cancel-btn">✕</button>
+    </div>
+
+    <svg class="wand" viewBox="0 0 24 24"><path d="M4 20 15 9" stroke="#5b2bd6" stroke-width="3" stroke-linecap="round"/><path d="m18 3 .7 1.6L20.3 5l-1.6.7L18 7.3l-.7-1.6L15.7 5l1.6-.4z" fill="#f472b6"/></svg>
+    <h2 class="ph-title">Uploading</h2>
+    <p class="ph-sub">Please stay on the page while uploading. After that, processing continues on your computer even if you close this tab.</p>
+    <div class="ask" id="ask" hidden>
+      <h3>Which part should become your short?</h3>
+      <p class="muted">This video is <b class="ask-dur"></b> long. Let Claude pick the most meaningful moment, or choose it yourself.</p>
+      <button class="btn-primary ask-auto" type="button">✨ Let Claude find the best moment</button>
+      <div class="ask-or"><span>or choose the start and end</span></div>
+      <video class="ask-player" controls preload="metadata"></video>
+      <div class="ask-row">
+        <label>Start<input class="text ask-start" placeholder="12:30"></label>
+        <button type="button" class="btn-outline sm ask-set-start" title="Use the player position">⤓ from player</button>
+        <label>End<input class="text ask-end" placeholder="13:45"></label>
+        <button type="button" class="btn-outline sm ask-set-end" title="Use the player position">⤓ from player</button>
+      </div>
+      <p class="ask-info muted"></p>
+      <button class="btn-outline ask-manual" type="button">Use this part</button>
+    </div>
+    <ul class="steps"></ul>
+    <div class="err" hidden></div>
+  </section>
+</template>
+
+<template id="tpl-results">
+  <section class="results">
+    <div class="res-head">
+      <div>
+        <h1 class="res-title"></h1>
+        <p class="res-summary muted"></p>
+        <div class="res-scriptures"></div>
+      </div>
+      <div class="res-actions">
+        <label class="prep">Shorts
+          <input type="number" id="prep-n" min="1" max="10" value="10">
+        </label>
+        <button class="btn-primary sm" id="prep-go">Prepare shorts</button>
+        <a class="btn-outline sm" id="dl-json" title="clips.json: start_time, end_time, title, hook, virality_score, summary…">JSON</a>
+      </div>
+    </div>
+    <div class="res-tools">
+      <button type="button" class="btn-outline sm pub-all" id="pub-all">☑ Select All videos to Publish</button>
+      <div class="filters" id="filters"></div>
+    </div>
+    <div class="clips"></div>
+  </section>
+</template>
+
+<template id="tpl-clip">
+  <article class="clip">
+    <div class="player">
+      <video preload="none" controls playsinline></video>
+      <div class="busy" hidden><div class="spin"></div><span>Rendering…</span></div>
+      <span class="score"></span>
+      <span class="rank"></span>
+    </div>
+    <div class="clip-body">
+      <div class="meta"><span class="cat"></span><span class="time muted"></span></div>
+      <h3 class="clip-title"></h3>
+      <p class="hook-line" hidden><span>On screen:</span> <b class="hook-text"></b></p>
+      <p class="core"></p>
+      <div class="refs"></div>
+      <p class="broll-line muted" hidden></p>
+      <details class="why">
+        <summary>Why this clip?</summary>
+        <p class="why-text"></p>
+        <p class="sc muted"></p>
+        <p class="transcript"></p>
+      </details>
+      <div class="pub-row">
+        <label class="pub"><input type="checkbox" class="pub-cb"> Publish online</label>
+        <span class="pub-status"></span>
+      </div>
+      <div class="clip-actions">
+        <a class="btn-primary sm dl">Download</a>
+        <button class="btn-outline sm copy">Copy post</button>
+        <button class="btn-outline sm adjust">Adjust</button>
+      </div>
+    </div>
+  </article>
+</template>
+
+<dialog id="adjust-dlg">
+  <form method="dialog" class="dlg">
+    <h3>Adjust clip</h3>
+    <p class="muted" id="adj-help">Pick the first and last sentence. Each clip should open the thought and land the message.</p>
+    <div class="passages" id="adj-passages" hidden></div>
+    <div class="sent-list" id="sent-list"></div>
+    <div class="broll-edit" id="adj-broll-box">
+      <div class="be-head"><b>B-roll</b> <span class="muted" id="adj-broll-help">Cutaway shots over the preacher. Use "B-roll" on a sentence above to add one.</span></div>
+      <div id="adj-broll"></div>
+    </div>
+    <label class="fl hook-edit">Hook title shown at the top <span class="muted">(empty = none for this short)</span>
+      <input class="text" id="adj-hook" maxlength="80" spellcheck="true">
+    </label>
+    <div class="slides-pick" id="slides-pick">
+      <span class="sp-label">Slides on screen</span>
+      <div class="seg" role="radiogroup" aria-label="Slides on screen">
+        <label title="Detect full-screen slides and show them whole; crop on the speaker otherwise"><input type="radio" name="adj-slides" value="auto"><span>Auto</span></label>
+        <label title="Always crop on the speaker, even on slides"><input type="radio" name="adj-slides" value="crop"><span>Crop</span></label>
+        <label title="Show the whole frame for the entire short (slides, wide shots)"><input type="radio" name="adj-slides" value="whole"><span>Whole frame</span></label>
+      </div>
+    </div>
+    <div class="dlg-foot">
+      <span class="muted" id="adj-dur"></span>
+      <span class="grow"></span>
+      <button value="cancel" class="btn-outline sm">Cancel</button>
+      <button value="ok" id="adj-ok" class="btn-primary sm">Re-render</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="key-dlg">
+  <form method="dialog" class="dlg" autocomplete="off">
+    <h3>Claude API key</h3>
+    <p class="muted">Stored only on this computer, in the project's <code>.env</code> file. Get a key at console.anthropic.com.</p>
+    <div class="keycur">
+      <div><span class="muted">Current key</span><b id="key-cur">none</b></div>
+      <div><span class="muted">Workspace ID</span><b id="ws-cur">none</b></div>
+      <div><span class="muted">Pixabay key</span><b id="px-cur">none</b></div>
+    </div>
+    <label class="fl">New API key
+      <span class="inrow"><input id="key-new" class="text" type="password" placeholder="sk-ant-…" spellcheck="false">
+      <button type="button" class="btn-outline sm" id="key-paste">Paste</button></span></label>
+    <label class="fl">Workspace ID <span class="muted">(only if your key is not scoped to a workspace)</span>
+      <input id="ws-new" class="text" placeholder="wrkspc_…" spellcheck="false"></label>
+    <label class="fl">Pixabay API key <span class="muted">(B-roll stock videos — free at pixabay.com/api/docs)</span>
+      <input id="px-new" class="text" type="password" placeholder="12345678-abc…" spellcheck="false"></label>
+    <p class="err" id="key-err" hidden></p>
+    <div class="dlg-foot">
+      <button type="button" class="linkbtn" id="key-remove">Remove key</button>
+      <span class="grow"></span>
+      <button value="cancel" class="btn-outline sm" formnovalidate>Close</button>
+      <button type="button" id="key-save" class="btn-primary sm">Save</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="local-dlg">
+  <form method="dialog" class="dlg">
+    <h3>Use a file on this PC</h3>
+    <p class="muted">Faster for long sermons: the video is read in place, nothing is copied.</p>
+    <input id="local-path" class="text" placeholder="D:\Videos\sermon.mp4">
+    <div class="dlg-foot"><span class="grow"></span>
+      <button value="cancel" class="btn-outline sm">Cancel</button>
+      <button value="ok" class="btn-primary sm">Continue</button>
+    </div>
+  </form>
+</dialog>
+
+<div id="pub-progress" class="pub-progress" hidden>
+  <div class="pp-top"><span class="pp-icon" id="pp-icon"></span><span id="pp-text"></span>
+    <button type="button" class="linkbtn-plain pp-close" id="pp-close" title="Hide">✕</button></div>
+  <div class="pp-bar"><i id="pp-fill"></i></div>
+  <div class="pp-sub" id="pp-sub"></div>
+</div>
+
+<div id="pub-bar" class="pub-bar" hidden>
+  <span id="pub-bar-text"></span>
+  <button type="button" class="linkbtn-plain pub-clear" id="pub-clear">Clear</button>
+  <button type="button" class="btn-primary" id="pub-go">Go Ahead to Publish</button>
+</div>
+
+<dialog id="social-dlg">
+  <form method="dialog" class="dlg" autocomplete="off">
+    <h3>Publish to social media</h3>
+    <p class="muted">Choose where your shorts go. You connect once; the app then publishes for you.</p>
+    <div class="nets" id="nets"></div>
+    <div class="net-panel" id="net-panel"></div>
+    <p class="err" id="social-err" hidden></p>
+    <div class="dlg-foot">
+      <span class="grow"></span>
+      <button value="cancel" class="btn-outline sm">Close</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="pub-dlg">
+  <form method="dialog" class="dlg">
+    <h3 id="pub-title">Publish</h3>
+    <ul class="pub-list" id="pub-list"></ul>
+    <label class="fl" id="pub-privacy-row">Visibility
+      <select class="text" id="pub-privacy">
+        <option value="public">Public</option>
+        <option value="unlisted">Unlisted (only people with the link)</option>
+        <option value="private">Private (only you)</option>
+      </select>
+    </label>
+    <p class="muted" id="pub-note"></p>
+    <div class="dlg-foot">
+      <span class="grow"></span>
+      <button value="cancel" class="btn-outline sm">Cancel</button>
+      <button value="ok" class="btn-primary sm" id="pub-confirm">Publish</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="ask-dlg">
+  <form method="dialog" class="dlg ask-dlg">
+    <p id="ask-msg"></p>
+    <textarea id="ask-input" class="text" rows="2" spellcheck="false" hidden></textarea>
+    <div class="dlg-foot">
+      <span class="grow"></span>
+      <button type="button" class="btn-outline sm" id="ask-cancel">Cancel</button>
+      <button value="ok" class="btn-primary sm" id="ask-ok">OK</button>
+    </div>
+  </form>
+</dialog>
+
+<div id="toast" hidden></div>
+<script src="i18n.js?v=24"></script>
+<script src="app.js?v=24"></script>
+</body>
+</html>

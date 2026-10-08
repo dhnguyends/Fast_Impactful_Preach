@@ -1,0 +1,35 @@
+FastImpact Preach — Eglise Evangélique Internationale de Genève (EEIG GVA)
+================================================================================
+
+FRANÇAIS
+--------
+FastImpact Preach est un outil interne de l'équipe média de l'EEIG GVA. Il transforme les
+prédications enregistrées en courtes vidéos verticales. Il est fourni tel quel, sans garantie.
+
+Vos données restent sur cet ordinateur, dans %LOCALAPPDATA%\FastImpactPreach (projets, clés API,
+journaux). Les transcriptions des prédications sont envoyées à l'API Claude d'Anthropic pour choisir
+les passages, avec votre propre clé API. La désinstallation conserve ce dossier.
+
+ENGLISH
+-------
+FastImpact Preach is an internal tool of the EEIG GVA media team. It turns recorded sermons into
+short vertical videos. It is provided as is, without warranty.
+
+Your data stays on this computer, in %LOCALAPPDATA%\FastImpactPreach (projects, API keys, logs).
+Sermon transcripts are sent to Anthropic's Claude API to choose passages, with your own API key.
+Uninstalling keeps that folder.
+
+THIRD-PARTY COMPONENTS / COMPOSANTS TIERS
+-----------------------------------------
+- FFmpeg (ffmpeg.exe, ffprobe.exe) — build from www.gyan.dev, licensed under the GNU General Public
+  License version 3 (GPLv3). Source code: https://ffmpeg.org/download.html and
+  https://www.gyan.dev/ffmpeg/builds/ . The exact build is listed in FFMPEG-BUILD.txt.
+  FFmpeg runs as a separate program; it is not linked into FastImpact Preach.
+- Whisper large-v3-turbo speech model (OpenAI, MIT License), CTranslate2 conversion by Mobius Labs
+  (MIT License).
+- faster-whisper, CTranslate2 (MIT); OpenCV (Apache 2.0); ONNX Runtime (MIT); NumPy, Pillow, PyAV,
+  FastAPI, Starlette, Uvicorn, Pydantic, HTTPX, yt-dlp (Unlicense), Anthropic Python SDK (MIT);
+  Python (PSF License). Each package keeps its own licence.
+- Montserrat font (SIL Open Font License 1.1).
+- Optional B-roll videos come from Pixabay under the Pixabay Content License, or from the church's
+  own library.

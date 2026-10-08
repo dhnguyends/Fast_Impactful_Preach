@@ -1,0 +1,17 @@
+.venv
+.git
+.claude
+data
+shorts
+archive
+tests
+__pycache__
+*.pyc
+.env
+.env.*
+*.mp4
+*.jpg
+*.png
+!static/**
+Screenshot_*
+!assets/brand/**

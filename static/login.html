@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FastImpact Preach — Sign in</title>
+<link rel="icon" href="logo.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="app.css?v=24">
+<style>
+  .login { max-width: 380px; margin: 18vh auto 0; padding: 0 16px; }
+  .login .card { border: 1px solid var(--line); border-radius: 14px; padding: 28px 24px; box-shadow: var(--shadow); }
+  .login h1 { font-size: 20px; margin: 14px 0 4px; }
+  .login p { margin: 0 0 18px; }
+  .login form { display: flex; flex-direction: column; gap: 10px; }
+  .login .btn-primary { padding: 11px; }
+  .login .err { margin: 0; }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <span class="crumb"><img src="logo.svg" alt="" class="logo"><span class="brand">FastImpact Preach</span></span>
+  <nav class="top-actions" id="top-actions"></nav>
+</header>
+<main class="login">
+  <div class="card">
+    <img src="logo.svg" alt="" width="34" height="34">
+    <h1>Sign in</h1>
+    <p class="muted">Enter the team password to create sermon shorts.</p>
+    <form id="f">
+      <input class="text" type="password" id="pw" placeholder="Password" autocomplete="current-password" autofocus required>
+      <p class="err" id="err" hidden></p>
+      <button class="btn-primary" type="submit">Sign in</button>
+    </form>
+  </div>
+</main>
+<script src="i18n.js?v=24"></script>
+<script>
+  mountLangSwitch(document.getElementById("top-actions"));
+  document.getElementById("f").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const err = document.getElementById("err");
+    err.hidden = true;
+    const r = await fetch("/api/login", { method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ password: document.getElementById("pw").value }) });
+    if (r.ok) { location.href = "/"; return; }
+    let msg = t("Sign-in failed.");
+    try { msg = ts((await r.json()).detail) || msg; } catch {}
+    err.textContent = msg; err.hidden = false;
+  });
+</script>
+</body>
+</html>

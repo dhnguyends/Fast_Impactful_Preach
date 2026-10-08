@@ -1,0 +1,36 @@
+# docker compose up -d --build
+# Needs (created by deploy/server-setup.sh):
+#   .env         FIP_DOMAIN=shorts.example.ch          (used by Caddy for the HTTPS certificate)
+#                FIP_DATA_PATH=/mnt/data/fastimpact     (optional: big data disk instead of a volume)
+#   .env.server  FIP_APP_PASSWORD=…  FIP_SESSION_SECRET=…
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    env_file: .env.server
+    volumes:
+      # projects, Whisper model cache, Claude key (.env): a host folder when FIP_DATA_PATH is set
+      - ${FIP_DATA_PATH:-fip-data}:/data
+    expose:
+      - "8000"
+    logging:
+      options: { max-size: "10m", max-file: "3" }
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    depends_on: [app]
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      FIP_DOMAIN: ${FIP_DOMAIN}
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data          # HTTPS certificates
+      - caddy-config:/config
+
+volumes:
+  fip-data:
+  caddy-data:
+  caddy-config:
